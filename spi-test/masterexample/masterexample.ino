@@ -7,11 +7,7 @@ int integerTemp[] = {0, 1, 0, 1, 0, 1, 1, 1};
 int pointTemp[] = {0, 0, 0, 0, 1, 0, 0, 1};
 
 void setup (void)
-{
-        pinMode(7, INPUT);
-        pinMode(6, OUTPUT);
-        digitalWrite(6, LOW);
-  
+{ 
   Serial.begin(115200);
 
   digitalWrite(SS_PID, HIGH);  // ensure SS stays high for now
@@ -26,7 +22,7 @@ void setup (void)
   // also put SCK, MOSI into LOW state, and SS into HIGH state.
   // Then put SPI hardware into Master mode and turn SPI on
   
-}  // end of setup
+}
 
 
 void loop (void)
@@ -43,7 +39,7 @@ void loop (void)
   
   digitalWrite(SS_PID, HIGH);
 
-}  // end of loop
+}
 
 void sendBits(int bits[]) {
    for (int i = 0; i < 8; i++) {
