@@ -1,14 +1,15 @@
 
 const int SS_WEBSERVER = 9;
-const int SS_PID = 10;
-const int CLK = 13;
+const int SS_PID = 2;
+const int CLK = 3;
 const int MOSI_PID = 4;
+const int analogTempPin = A5;
 
 int integerTemp[8];
 int pointTemp[8];
 float binary[] = {128, 64, 32, 16, 8, 4, 2, 1};
 
-const int analogTempPin = A1;
+
 long counter = 0;
 double sensorValue = 0;
 double meanSensorValue = 0;
@@ -35,7 +36,11 @@ void loop() {
     double b = 667 - (a * 62);
   
     double temp = (meanSensorValue - b) / a;
-    Serial.println(temp);
+    Serial.print(temp);
+    Serial.print("  ");
+    Serial.print(meanSensorValue);
+    Serial.print("  ");
+    Serial.println(analogRead(analogTempPin));
     createBinaryArrays(temp);
     
     sensorValue = 0;
