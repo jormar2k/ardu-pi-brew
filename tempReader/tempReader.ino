@@ -7,7 +7,11 @@ const int analogTempPin = A5;
 
 int integerTemp[8];
 int pointTemp[8];
+int setPoint[] = {0, 1, 0, 0, 0, 0, 0, 1};
+int analogResolution[16];
+int analogResolutionPoint[8];
 float binary[] = {128, 64, 32, 16, 8, 4, 2, 1};
+float binary2[] = {32768 ,16384, 8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1};
 
 
 long counter = 0;
@@ -52,8 +56,13 @@ void loop() {
     digitalWrite(SS_PID, LOW);
     delay(20);
   
-    sendBits(integerTemp);
-    sendBits(pointTemp);
+    sendByte(integerTemp);
+    sendByte(pointTemp);
+    sendByte(setPoint);
+
+    tempCreateBinaryArrays(meanSensorValue);
+    sendTwoByte(analogResolution);
+    sendByte(analogResolutionPoint);
     
     digitalWrite(SS_PID, HIGH);
   }
@@ -78,7 +87,25 @@ void createBinaryArray(int arr[], double &temp) {
   }
 }
 
-void sendBits(int bits[]) {
+void tempCreateBinaryArray(int arr[], double &temp) {
+    for (int i = 0; i < 16; i++) {
+    if (temp >= binary2[i]) {
+      arr[i] = 1;
+      temp -= binary2[i];
+    } else {
+      arr[i] = 0;
+    }
+  }
+}
+
+void tempCreateBinaryArrays(double &temp) {
+  tempCreateBinaryArray(analogResolution, temp);
+  double roundedPoint = round(temp * 10);
+  Serial.println(roundedPoint);
+  createBinaryArray(analogResolutionPoint, roundedPoint);
+}
+
+void sendByte(int bits[]) {
    for (int i = 0; i < 8; i++) {
     digitalWrite(CLK, HIGH);
     digitalWrite(MOSI_PID, bits[i]);
@@ -87,3 +114,14 @@ void sendBits(int bits[]) {
     delay(10);
   }
 }
+
+void sendTwoByte(int bits[]) {
+   for (int i = 0; i < 16; i++) {
+    digitalWrite(CLK, HIGH);
+    digitalWrite(MOSI_PID, bits[i]);
+    delay(10);
+    digitalWrite(CLK, LOW);
+    delay(10);
+  }
+}
+

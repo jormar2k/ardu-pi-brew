@@ -1,9 +1,10 @@
 #include <PID_v1.h>
 #include <math.h>
 
-const int nSS = 10;
-const int MOSI_HLT = 4;
-const int CLK = 13;
+const int nSS = 8;
+const int MOSI_HLT = 6;
+const int CLK = 7;
+const int relayPin = 3;
 
 int lastState = 0;
 int nowState = 0;
@@ -11,7 +12,7 @@ int counter = 0;
 boolean fallingEdge = false;
 boolean reading = false;
 
-const int shiftRegisterLength = 16;
+const int shiftRegisterLength = 48;
 int shiftRegister[shiftRegisterLength];
 
 //Define Variables we'll be connecting to
@@ -24,8 +25,6 @@ int windowSize = 5000;
 unsigned long windowStartTime;
 
 const int TWO_MINUTES = 30000;
-const int analogTempPin = A0;
-const int relayPin = 9;
 double temp = 0;
 
 PID myPID(&temp, &output, &setpoint, consKp, consKi, consKd, DIRECT);
@@ -34,6 +33,7 @@ void setup() {
   pinMode(nSS, INPUT);
   pinMode(MOSI_HLT, INPUT);
   pinMode(CLK, INPUT);
+  pinMode(relayPin, OUTPUT);
   
   Serial.begin(115200);
    //initialize the variables we're linked to
@@ -106,25 +106,31 @@ void readSpi() {
     if (!reading) {
       reading = true;
       counter = 0;
-      float integerValue = readBits(0);
-      float pointValue = readBits(8);
+      float integerValue = readBits(0, 8);
+      float pointValue = readBits(8, 8);
+      int setPoint = readBits(16, 8);
+      int meanSensorValue = readBits(24, 16);
+      int meanSensorValuePoint = readBits(40, 8);
+      double mean = (meanSensorValuePoint * 0.1) + meanSensorValue;
       temp = (pointValue * 0.1) + integerValue;
       Serial.print(temp);
       Serial.print("    ");
       Serial.print(output);
       Serial.print("    ");
-      Serial.println(millis());
+      Serial.print(setPoint);
+      Serial.print("    ");
+      Serial.println(mean);
     }
 
   }
 }
 
-float readBits(int offset) {
+float readBits(int offset, int nrOfBitsToRead) {
   float value = 0;
-  for (int i = offset; i < offset + 8; i++) {
+  for (int i = offset; i < offset + nrOfBitsToRead; i++) {
     if (shiftRegister[i] == 1) {
       float poop = i + 1;
-      value += pow(2, (offset + 8) - poop);
+      value += pow(2, (offset + nrOfBitsToRead) - poop);
     }
   }
 
