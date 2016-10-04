@@ -1,13 +1,13 @@
-
-const int SS_WEBSERVER = 9;
+const int MISO_PI = 13;
+const int SS_RASPBERRY = 5;
 const int SS_PID = 2;
 const int CLK = 3;
 const int MOSI_PID = 4;
-const int analogTempPin = A5;
+const int analogTempPin = A4;
 
 int integerTemp[8];
 int pointTemp[8];
-int setPoint[] = {0, 1, 0, 0, 0, 0, 0, 1};
+int setPoint[] = {0, 1, 0, 0, 0, 0, 1, 1};
 int analogResolution[16];
 int analogResolutionPoint[8];
 float binary[] = {128, 64, 32, 16, 8, 4, 2, 1};
@@ -24,10 +24,12 @@ void setup() {
   digitalWrite(SS_PID, HIGH);  // ensure SS stays high for now
   digitalWrite(CLK, LOW);
   digitalWrite(MOSI_PID, LOW);
-  
+
+  pinMode(MISO_PI, INPUT);
   pinMode(CLK, OUTPUT);
   pinMode(MOSI_PID, OUTPUT);
   pinMode(SS_PID, OUTPUT);
+  pinMode(SS_RASPBERRY, OUTPUT);
 }
 
 void loop() {

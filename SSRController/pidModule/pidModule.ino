@@ -4,7 +4,7 @@
 const int nSS = 8;
 const int MOSI_HLT = 6;
 const int CLK = 7;
-const int relayPin = 3;
+const int relayPin = 4;
 
 int lastState = 0;
 int nowState = 0;
@@ -30,6 +30,9 @@ double temp = 0;
 PID myPID(&temp, &output, &setpoint, consKp, consKi, consKd, DIRECT);
 
 void setup() {
+  //Not in use, safety.
+  pinMode(5, INPUT);
+  
   pinMode(nSS, INPUT);
   pinMode(MOSI_HLT, INPUT);
   pinMode(CLK, INPUT);
