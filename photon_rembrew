@@ -1,0 +1,56 @@
+
+#include "pid/pid.h"
+
+static const int relayPin = 4;
+static const int analogTempPin = A4;
+static const int windowSize = 5000;
+
+double setpoint, input, output;
+double kp=500, ki=0, kd=0;
+long now, windowStartTime;
+long counter = 0;
+double sensorValue = 0;
+double meanSensorValue = 0;
+double temp = 0;
+
+
+PID myPID(&temp, &output, &setpoint, kp, ki, kd, PID::DIRECT);
+
+void setup() {
+    input = analogRead(0);
+    myPID.SetMode(PID::AUTOMATIC);
+    myPID.SetOutputLimits(0, windowSize);
+}
+
+void loop() {
+    counter++;
+    sensorValue = sensorValue + analogRead(analogTempPin);
+    
+    if (counter > 10000) {
+        meanSensorValue = sensorValue / counter;
+        
+        double a = (840 - 667)/(80.1 - 62);
+        double b = 667 - (a * 62);
+        temp = (meanSensorValue - b) / a;
+        
+        sensorValue = 0;
+        counter = 0;
+    }
+    
+    doPid();
+}
+
+void doPid() {
+    myPID.Compute();
+    
+    now = millis();
+    if (now - windowStartTime > windowSize) {
+        windowStartTime += windowSize;
+    }
+    
+    if ((output > now - windowStartTime) && output > 100) {
+        digitalWrite(relayPin, HIGH);
+    } else {
+        digitalWrite(relayPin, LOW);
+    }
+}
